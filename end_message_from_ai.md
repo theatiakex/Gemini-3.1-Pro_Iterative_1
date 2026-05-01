@@ -45,3 +45,27 @@ All 13 existing acceptance criteria tests continue to pass successfully, confirm
 Telemetry:
 
 Logged the dotnet test execution attempt for iteration 2 to test_metrics.jsonl in the root directory.
+
+### Iteration 3
+
+I have successfully expanded the prototype to support external shot change data integration according to the specifications in iteration_3.md.
+
+Architectural Implementation Details
+Internal Data Model Upgrade:
+
+Extended the Cue class (SubtitleQc.Core/Models/Cue.cs) to include an optional StartFrame integer property. This allows the unified model to represent frame-based timing when available, without breaking backward compatibility for parsers that only provide TimeSpan data.
+External Data Integration Abstraction:
+
+Created the IShotChangeProvider interface (SubtitleQc.Core/Qc/Abstractions/IShotChangeProvider.cs). This adheres to the Dependency Inversion Principle (DIP) by ensuring the rules depend on an abstraction rather than a concrete implementation of external data loading. It provides methods to retrieve both timestamp-based cuts and frame-based cuts.
+Rule Engine Expansion:
+
+Implemented CrossShotBoundaryCheckRule (SubtitleQc.Core/Qc/Rules/CrossShotBoundaryCheckRule.cs): This rule takes an IShotChangeProvider and fails any cue whose Start and End times span across an external cut timestamp.
+Implemented MinFramesFromShotChangeRule (SubtitleQc.Core/Qc/Rules/MinFramesFromShotChangeRule.cs): This rule takes an IShotChangeProvider and a threshold, and fails any cue whose StartFrame is within the threshold distance of any external cut frame.
+Technical Constraints:
+
+The new abstractions and rules strictly adhere to the one class per file rule.
+Complex logic was kept minimal and declarative using LINQ, ensuring no method exceeds 20 lines of code.
+The existing test suite was respected, and all 19 tests (including the 6 new tests for Iteration 3) are now passing successfully.
+Telemetry:
+
+Logged the dotnet test execution attempt for iteration 3 to test_metrics.jsonl in the root directory.
